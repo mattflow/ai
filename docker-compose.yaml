@@ -1,4 +1,5 @@
 services:
   app:
     build: .
+    expose: 80
     command: "uv run fastapi run app/main.py --port 80 --proxy-headers"
