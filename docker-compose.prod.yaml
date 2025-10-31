@@ -10,8 +10,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
   migrations:
     build: .
     exclude_from_hc: true
@@ -46,6 +44,3 @@ services:
       - SERVICE_HOST_POSTGRES=postgres
       - SERVICE_PORT_POSTGRES=5432
       - INCREMENTAL_DATABASE_UPDATES=false
-
-volumes:
-  postgres_data:
