@@ -1,5 +1,4 @@
 services:
   app:
     build: .
-    ports:
-      - "80:80"
+    command: "fastapi run app/main.py --port 80 --proxy-headers"
