@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
 from app.database import create_database_and_tables, get_engine
-from app.settings import SettingsDep, get_settings
+from app.settings import get_settings
 
 
 @asynccontextmanager
