@@ -28,8 +28,3 @@ async def redirect_to_docs():
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
-
-
-@app.get("/settings")
-async def read_settings(settings: SettingsDep):
-    return settings
