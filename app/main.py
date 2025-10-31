@@ -7,3 +7,8 @@ app = FastAPI()
 @app.get("/", include_in_schema=False)
 async def redirect_to_docs():
     return RedirectResponse(url="/docs")
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
