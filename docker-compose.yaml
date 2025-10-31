@@ -1,4 +1,15 @@
 services:
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=${SERVICE_USER_POSTGRES}
+      - POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRES}
+      - POSTGRES_DB=${SERVICE_DATABASE_POSTGRES}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${SERVICE_USER_POSTGRES} -d ${SERVICE_DATABASE_POSTGRES}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   app:
     build: .
     command: "uv run fastapi run app/main.py --port 80 --proxy-headers"
@@ -9,3 +20,12 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - SERVICE_USER_POSTGRES=${SERVICE_USER_POSTGRES}
+      - SERVICE_PASSWORD_POSTGRES=${SERVICE_PASSWORD_POSTGRES}
+      - SERVICE_DATABASE_POSTGRES=${SERVICE_DATABASE_POSTGRES}
+      - SERVICE_HOST_POSTGRES=postgres
+      - SERVICE_PORT_POSTGRES=5432
