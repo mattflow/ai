@@ -12,8 +12,3 @@ async def redirect_to_docs():
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
-
-
-@app.get("/greeting")
-async def greeting(name: str = "world"):
-    return {"message": f"Hello {name}"}
