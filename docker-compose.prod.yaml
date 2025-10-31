@@ -10,6 +10,21 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  migrations:
+    build: .
+    restart: "no"
+    command: "uv run alembic upgrade head"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - SERVICE_USER_POSTGRES=${SERVICE_USER_POSTGRES}
+      - SERVICE_PASSWORD_POSTGRES=${SERVICE_PASSWORD_POSTGRES}
+      - SERVICE_DATABASE_POSTGRES=${SERVICE_DATABASE_POSTGRES}
+      - SERVICE_HOST_POSTGRES=postgres
+      - SERVICE_PORT_POSTGRES=5432
   app:
     build: .
     command: "uv run fastapi run app/main.py --port 80 --proxy-headers"
@@ -21,11 +36,15 @@ services:
       timeout: 10s
       retries: 3
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
     environment:
       - SERVICE_USER_POSTGRES=${SERVICE_USER_POSTGRES}
       - SERVICE_PASSWORD_POSTGRES=${SERVICE_PASSWORD_POSTGRES}
       - SERVICE_DATABASE_POSTGRES=${SERVICE_DATABASE_POSTGRES}
       - SERVICE_HOST_POSTGRES=postgres
       - SERVICE_PORT_POSTGRES=5432
+      - INCREMENTAL_DATABASE_UPDATES=false
+
+volumes:
+  postgres_data:

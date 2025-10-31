@@ -1,50 +1,23 @@
-from functools import lru_cache
-from typing import Annotated
-from fastapi import Depends, FastAPI
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import SecretStr
+
+from app.database import create_database_and_tables, get_engine
+from app.settings import SettingsDep, get_settings
 
 
-class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    settings = get_settings()
 
-    service_user_postgres: str
-    service_password_postgres: SecretStr
-    service_database_postgres: str
-    service_host_postgres: str
-    service_port_postgres: int
+    if settings.incremental_database_updates:
+        async with get_engine(settings, echo=True) as engine:
+            await create_database_and_tables(engine)
 
-    @property
-    def postgres_sync_url(self) -> SecretStr:
-        return SecretStr(
-            f"postgresql+psycopg2://{self.service_user_postgres}:"
-            f"{self.service_password_postgres.get_secret_value()}@"
-            f"{self.service_host_postgres}:"
-            f"{self.service_port_postgres}/"
-            f"{self.service_database_postgres}"
-        )
-
-    @property
-    def postgres_async_url(self) -> SecretStr:
-        return SecretStr(
-            f"postgresql+asyncpg://{self.service_user_postgres}:"
-            f"{self.service_password_postgres.get_secret_value()}@"
-            f"{self.service_host_postgres}:"
-            f"{self.service_port_postgres}/"
-            f"{self.service_database_postgres}"
-        )
+    yield
 
 
-@lru_cache
-def get_settings() -> Settings:
-    return Settings()  # pyright: ignore[reportCallIssue]
-
-
-SettingsDep = Annotated[Settings, Depends(get_settings)]
-
-
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/", include_in_schema=False)

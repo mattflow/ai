@@ -7,4 +7,7 @@ COPY pyproject.toml pyproject.toml
 COPY uv.lock uv.lock
 RUN uv sync --locked
 
+COPY migrations migrations
+COPY alembic.ini alembic.ini
+
 COPY app app
