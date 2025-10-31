@@ -14,6 +14,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
   migrations:
     build: .
+    exclude_from_hc: true
     restart: "no"
     command: "uv run alembic upgrade head"
     depends_on:
