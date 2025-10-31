@@ -2,6 +2,8 @@ services:
   app:
     build: .
     command: "uv run fastapi run app/main.py --port 80 --proxy-headers"
+    expose:
+      - 80
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost/health" ]
       interval: 1m30s
