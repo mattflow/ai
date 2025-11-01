@@ -3,7 +3,8 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
 from app.database import create_database_and_tables, get_engine
-from app.settings import get_settings
+from app.settings import SettingsDep, get_settings
+from app.routers import user_router
 
 
 @asynccontextmanager
@@ -28,3 +29,6 @@ async def redirect_to_docs():
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
+
+
+app.include_router(user_router)
